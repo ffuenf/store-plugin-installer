@@ -6,14 +6,15 @@
     "require": {
         "php": "^7.0.0",
         "composer-plugin-api": "^1.0.0",
-        "vlucas/phpdotenv": "^3.1",
+        "vlucas/phpdotenv": "~2.0 || ~3.3",
         "ext-curl": "*",
         "ext-json": "*",
         "ext-zip": "*"
     },
     "require-dev": {
         "composer/composer": "^1.6",
-        "phpunit/phpunit": "^6"
+        "phpunit/phpunit": "^6",
+        "mikey179/vfsstream": "^2.0@dev"
     },
     "autoload": {
         "psr-4": {
@@ -21,14 +22,14 @@
         }
     },
     "scripts": {
-        "post-update-cmd": "Shyim\\PluginInstaller::installPlugins",
-        "post-install-cmd": "Shyim\\PluginInstaller::installPlugins"
+        "post-update-cmd": "Shyim\\ComposerPlugin::installPlugins",
+        "post-install-cmd": "Shyim\\ComposerPlugin::installPlugins"
     },
     "config": {
         "optimize-autoloader": true,
         "process-timeout": 0
     },
     "extra": {
-        "class": "Shyim\\PluginInstaller"
+        "class": "Shyim\\ComposerPlugin"
     }
 }

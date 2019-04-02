@@ -31,7 +31,7 @@ Example composer.json
         "php": "^5.6.4||^7.0",
         "composer/installers": "^1.0",
         "shopware/shopware": "^5.4",
-        "vlucas/phpdotenv": "^3.1",
+        "vlucas/phpdotenv": "~2.0 || ~3.3",
         "shyim/store-plugin-installer": "dev-master"
     },
     "extra": {
@@ -82,9 +82,13 @@ Aaaaaaaand the Plugins should be installed
 
 ## FAQ
 
-# BinariesException-14
+### BinariesException-14
 
 Reasons can be:
 
 * You are not logged in
 * The `SHOP_URL` environment variable does not equal the from account 
+
+#### Versions
+
+Versions can be a constraint or a exact version

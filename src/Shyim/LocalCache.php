@@ -4,7 +4,6 @@ namespace Shyim;
 
 /**
  * Class LocalCache
- * @package Shyim
  */
 class LocalCache
 {
@@ -28,7 +27,8 @@ class LocalCache
     /**
      * @param $name
      * @param $version
-     * @return null|string
+     *
+     * @return string|null
      */
     public static function getPlugin($name, $version)
     {
@@ -41,8 +41,21 @@ class LocalCache
     }
 
     /**
+     * Clean cachedata by a filename.
+     *
+     * @param string $filename
+     */
+    public static function cleanByPath($filename)
+    {
+        if (file_exists($filename)) {
+            unlink($filename);
+        }
+    }
+
+    /**
      * @param string $name
      * @param string $version
+     *
      * @return string
      */
     public static function getCachePath($name, $version)
@@ -53,6 +66,7 @@ class LocalCache
     /**
      * @param string $name
      * @param string $version
+     *
      * @return string
      */
     private static function buildPluginZipName($name, $version)

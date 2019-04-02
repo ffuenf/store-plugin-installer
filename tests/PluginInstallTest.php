@@ -1,8 +1,9 @@
 <?php
 
-use Shyim\PluginInstaller;
+use PHPUnit\Framework\TestCase;
+use Shyim\ComposerPlugin;
 
-class PluginInstallTest extends \PHPUnit\Framework\TestCase
+class PluginInstallTest extends TestCase
 {
     /**
      * @var \Composer\IO\BufferIO
@@ -19,20 +20,17 @@ class PluginInstallTest extends \PHPUnit\Framework\TestCase
         $this->testHost = parse_url(getenv('SHOP_URL'), PHP_URL_HOST);
     }
 
-    /**
-     * @throws Exception
-     */
     public function testInstallSinglePlugin()
     {
         $event = $this->getMockedEvent([
             'plugins' => [
                 'production' => [
-                    'SwagLiveshopping' => '3.2.0'
-                ]
-            ]
+                    'SwagLiveshopping' => '3.2.0',
+                ],
+            ],
         ]);
 
-        PluginInstaller::installPlugins($event);
+        ComposerPlugin::installPlugins($event);
 
         $this->assertContains('Successfully loggedin in the account', $this->output->getOutput());
         $this->assertContains($this->testHost, $this->output->getOutput());
@@ -41,21 +39,18 @@ class PluginInstallTest extends \PHPUnit\Framework\TestCase
         $this->assertFileExists('./custom/plugins/SwagLiveShopping');
     }
 
-    /**
-     * @throws Exception
-     */
     public function testInstallMultiplePlugin()
     {
         $event = $this->getMockedEvent([
             'plugins' => [
                 'production' => [
                     'SwagLiveshopping' => '3.2.0',
-                    'SwagTicketSystem' => '2.2.0'
-                ]
-            ]
+                    'SwagTicketSystem' => '2.2.0',
+                ],
+            ],
         ]);
 
-        PluginInstaller::installPlugins($event);
+        ComposerPlugin::installPlugins($event);
 
         $this->assertContains('Successfully loggedin in the account', $this->output->getOutput());
         $this->assertContains($this->testHost, $this->output->getOutput());
@@ -68,20 +63,17 @@ class PluginInstallTest extends \PHPUnit\Framework\TestCase
         $this->assertFileExists('./custom/plugins/SwagTicketSystem');
     }
 
-    /**
-     * @throws Exception
-     */
     public function testInstallByCode()
     {
         $event = $this->getMockedEvent([
             'plugins' => [
                 'production' => [
                     'Swag369885808847' => '3.3.0',
-                ]
-            ]
+                ],
+            ],
         ]);
 
-        PluginInstaller::installPlugins($event);
+        ComposerPlugin::installPlugins($event);
 
         $this->assertContains('Successfully loggedin in the account', $this->output->getOutput());
         $this->assertContains($this->testHost, $this->output->getOutput());
@@ -90,8 +82,59 @@ class PluginInstallTest extends \PHPUnit\Framework\TestCase
         $this->assertFileExists('./custom/plugins/SwagDigitalPublishing');
     }
 
+    public function testInstallPluginWithLeftTrialVersion()
+    {
+        $event = $this->getMockedEvent([
+            'plugins' => [
+                'production' => [
+                    'NetiStoreLocator' => '5.3.0',
+                ],
+            ],
+        ]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Could not download plugin NetiStoreLocator in version 5.3.0 maybe not a valid licence for this version');
+
+        ComposerPlugin::installPlugins($event);
+    }
+
+    public function testInstallWithConstraint()
+    {
+        $event = $this->getMockedEvent([
+            'plugins' => [
+                'production' => [
+                    'SwagLiveshopping' => '^3',
+                ],
+            ],
+        ]);
+
+        ComposerPlugin::installPlugins($event);
+
+        $this->assertContains('Successfully loggedin in the account', $this->output->getOutput());
+        $this->assertContains($this->testHost, $this->output->getOutput());
+        $this->assertContains('SwagLiveShopping', $this->output->getOutput());
+        $this->assertContains('with version 3', $this->output->getOutput());
+        $this->assertFileExists('./custom/plugins/SwagLiveShopping');
+    }
+
+    public function testDidYouMean()
+    {
+        $event = $this->getMockedEvent([
+            'plugins' => [
+                'production' => [
+                    'paypal' => '^3',
+                ],
+            ],
+        ]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessageRegExp('#Did you mean some#');
+        ComposerPlugin::installPlugins($event);
+    }
+
     /**
      * @param array $data
+     *
      * @return \PHPUnit\Framework\MockObject\MockObject
      */
     private function getMockedEvent(array $data)
@@ -101,7 +144,6 @@ class PluginInstallTest extends \PHPUnit\Framework\TestCase
         $package = $this->getMockBuilder(\Composer\Package\RootPackage::class)
             ->disableOriginalConstructor()
             ->getMock();
-
 
         $package->method('getExtra')
             ->willReturn($data);
