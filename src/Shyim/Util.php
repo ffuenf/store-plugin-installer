@@ -2,20 +2,31 @@
 
 namespace Shyim;
 
+use Symfony\Component\Console\Output\OutputInterface;
+
 /**
  * Class Util
- * @package Shyim
  */
 class Util
 {
     const REGEX = '/([\d]+\.[\d]+\.[\d]+(\-[a-zA-Z\d]{0,4})?)/';
 
     /**
+     * @var OutputInterface
+     */
+    public static $io;
+
+    /**
+     * @var bool
+     */
+    public static $silentFail;
+
+    /**
      * @return string
      */
-    public static function getShopwareVersion() : string
+    public static function getShopwareVersion(): string
     {
-        $version = self::getenv('SHOPWARE_VERSION', self::getComposerVersion());
+        $version = self::getEnv('SHOPWARE_VERSION', self::getComposerVersion());
 
         if (!$version) {
             throw new \RuntimeException(sprintf('Version %s is invalid', $version));
@@ -30,10 +41,11 @@ class Util
 
     /**
      * @param string $name
-     * @param mixed $default
+     * @param mixed  $default
+     *
      * @return mixed
      */
-    public static function getenv($name, $default = false)
+    public static function getEnv($name, $default = false)
     {
         $var = getenv($name);
         if (!$var) {
@@ -41,6 +53,26 @@ class Util
         }
 
         return $var;
+    }
+
+    /**
+     * Handle exceptions and errors
+     *
+     * @param string $msg
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public static function throwException(\Throwable $e)
+    {
+        if (self::$silentFail) {
+            self::$io->write($e->getMessage(), true);
+        } else {
+            throw $e;
+        }
+
+        return false;
     }
 
     /**
@@ -56,5 +88,4 @@ class Util
 
         return $version;
     }
-
 }

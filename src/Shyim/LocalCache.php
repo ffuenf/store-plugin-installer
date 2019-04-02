@@ -4,25 +4,31 @@ namespace Shyim;
 
 /**
  * Class LocalCache
- * @package Shyim
  */
 class LocalCache
 {
     public static $path;
 
-    public static function init()
+    public static function init($path = null)
     {
-        self::$path = getenv('HOME') . '/.shopware-plugins/';
+        if ($path === null) {
+            self::$path = getenv('HOME') . '/.shopware-plugins/';
+        } else {
+            self::$path = rtrim($path, '/') . '/.shopware-plugins/';
+        }
 
         if (!file_exists(self::$path)) {
-            mkdir(self::$path);
+            if (!mkdir($concurrentDirectory = self::$path) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+            }
         }
     }
 
     /**
      * @param $name
      * @param $version
-     * @return null|string
+     *
+     * @return string|null
      */
     public static function getPlugin($name, $version)
     {
@@ -35,8 +41,21 @@ class LocalCache
     }
 
     /**
+     * Clean cachedata by a filename.
+     *
+     * @param string $filename
+     */
+    public static function cleanByPath($filename)
+    {
+        if (file_exists($filename)) {
+            unlink($filename);
+        }
+    }
+
+    /**
      * @param string $name
      * @param string $version
+     *
      * @return string
      */
     public static function getCachePath($name, $version)
@@ -47,6 +66,7 @@ class LocalCache
     /**
      * @param string $name
      * @param string $version
+     *
      * @return string
      */
     private static function buildPluginZipName($name, $version)
