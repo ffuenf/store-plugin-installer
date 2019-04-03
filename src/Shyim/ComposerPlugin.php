@@ -108,7 +108,11 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             self::$io->write('[Installer] Cannot find plugins in composer.json extra', true);
         }
 
-        $domain = parse_url(Util::getEnv('SHOP_URL'), PHP_URL_HOST);
+        if (Util::getEnv('SHOP_ALTERNATIVE_URL') != '') {
+            $domain = parse_url(Util::getEnv('SHOP_ALTERNATIVE_URL'), PHP_URL_HOST);
+        } else {
+            $domain = parse_url(Util::getEnv('SHOP_URL'), PHP_URL_HOST);
+        }
 
         $success = true;
 
