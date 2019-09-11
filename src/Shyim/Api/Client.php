@@ -64,9 +64,18 @@ class Client
         return $this->licenses;
     }
 
-    public function downloadPlugin(Binaries $binaryVersion)
+    public function downloadPlugin(Binaries $binaryVersion, string $name, string $version)
     {
-        return $this->makePluginHTTPRequest(self::BASE_URL . $binaryVersion->filePath . '?token=' . $this->token . '&shopId=' . $this->shop->id);
+        $json = $this->apiRequest($binaryVersion->filePath, 'GET', [
+            'json' => true,
+            'shopId' => $this->shop->id
+        ]);
+
+        if (!array_key_exists('url', $json)) {
+            throw new \InvalidArgumentException(sprintf('Could not download plugin %s in version %s maybe not a valid licence for this version', $name, $version));
+        }
+
+        return self::makePluginHTTPRequest($json['url']);
     }
 
     /**
@@ -117,7 +126,7 @@ class Client
 
         $info = curl_getinfo($ch);
 
-        if (isset($info['content_type']) && $info['content_type'] == 'application/json') {
+        if (isset($info['content_type']) && $info['content_type'] === 'application/json') {
             $content = json_decode($content, true);
         }
 
@@ -133,7 +142,7 @@ class Client
         if ($partnerAccount && !empty($partnerAccount['partnerId'])) {
             ComposerPlugin::$io->write('[Installer] Account is partner account', true);
 
-            $clientShops = Shop::mapList(self::apiRequest('/partners/' . $this->userId . '/clientshops', 'GET', [], false));
+            $clientShops = Shop::mapList($this->apiRequest('/partners/' . $this->userId . '/clientshops', 'GET', [], false));
         } else {
             $clientShops = [];
         }
@@ -160,11 +169,11 @@ class Client
             'domain' => $this->shop->domain,
         ];
 
-        if ($partnerAccount) {
+        if (!empty($partnerAccount['partnerId'])) {
             $licenseParams['partnerId'] = $this->userId;
         }
 
-        $licenses = self::apiRequest('/licenses', 'GET', $licenseParams, false);
+        $licenses = $this->apiRequest('/licenses', 'GET', $licenseParams, false);
 
         if (isset($licenses->success) && !$licenses->success) {
             throw new \RuntimeException(sprintf('[Installer] Fetching shop licenses failed with code "%s"!', $licenses->code));
