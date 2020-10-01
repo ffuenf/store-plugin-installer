@@ -131,10 +131,10 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $envFile = getcwd() . '/.env';
 
         if (file_exists($envFile)) {
-            if (method_exists(Dotenv::class, 'create')) {
-                (Dotenv::create(getcwd()))->load();
-            } elseif (method_exists(Dotenv::class, 'createImmutable')) {
+            if (method_exists(Dotenv::class, 'createImmutable')) {
                 (Dotenv::createImmutable(getcwd()))->load();
+            } elseif (method_exists(Dotenv::class, 'create')) {
+                (Dotenv::create(getcwd()))->load();
             } else {
                 (new Dotenv(getcwd()))->load();
             }
