@@ -70,7 +70,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         LocalCache::init($e->getComposer()->getConfig()->get('cache-dir'));
 
         Util::$io = $e->getIO();
-        Util::$silentFail = filter_var($_ENV[('SW_STORE_PLUGIN_INSTALLER_SILENTFAIL', false), FILTER_VALIDATE_BOOLEAN);
+        Util::$silentFail = filter_var($_ENV['SW_STORE_PLUGIN_INSTALLER_SILENTFAIL', false], FILTER_VALIDATE_BOOLEAN);
 
         self::$io = $e->getIO();
 
