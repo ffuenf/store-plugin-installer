@@ -47,7 +47,7 @@ class Util
      */
     public static function getEnv($name, $default = false)
     {
-        $var = getenv($name);
+        $var = $_ENV[$name];
         if (!$var) {
             $var = $default;
         }

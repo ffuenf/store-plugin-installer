@@ -17,7 +17,7 @@ class PluginInstallTest extends TestCase
 
     public function setUp()
     {
-        $this->testHost = parse_url(getenv('SHOP_URL'), PHP_URL_HOST);
+        $this->testHost = parse_url($_ENV['SHOP_URL'], PHP_URL_HOST);
     }
 
     public function testInstallSinglePlugin()

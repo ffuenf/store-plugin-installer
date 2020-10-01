@@ -12,7 +12,7 @@ class LocalCache
     public static function init($path = null)
     {
         if ($path === null) {
-            self::$path = getenv('HOME') . '/.shopware-plugins/';
+            self::$path = $_ENV['HOME'] . '/.shopware-plugins/';
         } else {
             self::$path = rtrim($path, '/') . '/.shopware-plugins/';
         }
