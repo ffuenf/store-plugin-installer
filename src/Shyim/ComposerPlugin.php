@@ -70,7 +70,8 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         LocalCache::init($e->getComposer()->getConfig()->get('cache-dir'));
 
         Util::$io = $e->getIO();
-        Util::$silentFail = filter_var($_ENV['SW_STORE_PLUGIN_INSTALLER_SILENTFAIL', false], FILTER_VALIDATE_BOOLEAN);
+        $silentfail = $_ENV['SW_STORE_PLUGIN_INSTALLER_SILENTFAIL'] ? $_ENV['SW_STORE_PLUGIN_INSTALLER_SILENTFAIL'] : false;
+        Util::$silentFail = filter_var($silentfail, FILTER_VALIDATE_BOOLEAN);
 
         self::$io = $e->getIO();
 
@@ -95,7 +96,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $this->extra = $e->getComposer()->getPackage()->getExtra();
 
         if (isset($this->extra['plugins'])) {
-            $env = $_ENV['SHOPWARE_ENV', 'production'];
+            $env = $_ENV['SHOPWARE_ENV'] ? $_ENV['SHOPWARE_ENV'] : 'production';
 
             if (!isset($this->extra['plugins'][$env])) {
                 self::$io->write(sprintf('Cannot find plugins for environment "%s"', $env), true);
