@@ -70,7 +70,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         LocalCache::init($e->getComposer()->getConfig()->get('cache-dir'));
 
         Util::$io = $e->getIO();
-        Util::$silentFail = filter_var(Util::getEnv('SW_STORE_PLUGIN_INSTALLER_SILENTFAIL', false), FILTER_VALIDATE_BOOLEAN);
+        Util::$silentFail = filter_var($_ENV[('SW_STORE_PLUGIN_INSTALLER_SILENTFAIL', false), FILTER_VALIDATE_BOOLEAN);
 
         self::$io = $e->getIO();
 
@@ -95,7 +95,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $this->extra = $e->getComposer()->getPackage()->getExtra();
 
         if (isset($this->extra['plugins'])) {
-            $env = Util::getEnv('SHOPWARE_ENV', 'production');
+            $env = $_ENV['SHOPWARE_ENV', 'production'];
 
             if (!isset($this->extra['plugins'][$env])) {
                 self::$io->write(sprintf('Cannot find plugins for environment "%s"', $env), true);
@@ -108,16 +108,16 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             self::$io->write('[Installer] Cannot find plugins in composer.json extra', true);
         }
 
-        if (Util::getEnv('SHOP_ALTERNATIVE_URL') != '') {
-            $domain = parse_url(Util::getEnv('SHOP_ALTERNATIVE_URL'), PHP_URL_HOST);
+        if ($_ENV['SHOP_ALTERNATIVE_URL'] != '') {
+            $domain = parse_url($_ENV['SHOP_ALTERNATIVE_URL'], PHP_URL_HOST);
         } else {
-            $domain = parse_url(Util::getEnv('SHOP_URL'), PHP_URL_HOST);
+            $domain = parse_url($_ENV['SHOP_URL'], PHP_URL_HOST);
         }
 
         $success = true;
 
         try {
-            $this->api = new Client(Util::getEnv('ACCOUNT_USER'), Util::getEnv('ACCOUNT_PASSWORD'), $domain);
+            $this->api = new Client($_ENV['ACCOUNT_USER'], $_ENV['ACCOUNT_PASSWORD'], $domain);
         } catch (\Exception $e) {
             Util::throwException($e);
             $success = false;
